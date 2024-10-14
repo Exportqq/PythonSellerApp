@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Добавить товар</title>
+    </head>
+    <body>
+        <h1>Добавить товар</h1>
+        {% if error %}
+            <p style="color: red">{{ error }}</p>
+        {% endif %}
+        <form action="" method="post">
+            <label>Имя товара:</label>
+            <input type="text" name="name" required>
+            <br>
+            <label>Цена:</label>
+            <input type="number" name="price" required>
+            <br>
+            <label>Комментарий:</label>
+            <textarea name="comment"></textarea>
+            <br>
+            <button type="submit">Добавить</button>
+        </form>
+    </body>
+</html>
