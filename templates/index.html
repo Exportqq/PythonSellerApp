@@ -23,25 +23,43 @@
                             <p class="orders">Your orders:</p>
                             <p class="orders">Earned:</p>
                             <form action="{{ url_for('add_product') }}" method="post">
-                                <button class="add-product" type="submit">+</button>
+                                {% if current_user.role == 'admin' %}
+                                    <button class="add-product" type="submit">+</button>
+                                {% endif %}
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <p class="profile-txt-three">List of order</p>
+            <p class="profile-txt-three">List of available products</p>
             <div class="product-list">
                 <div class="nav-orders">
                     {% for product in products %}
-                    <p class="orders-items">{{ product.name }} <span class="text-align: end">{{ product.price }}руб </span>
-                        <!-- Add a delete button -->
-                        <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post">
-                            <button class="delete-product" type="submit">DEL</button>
-                        </form>
+                    <p class="orders-items">
+                        <!-- Добавляем ссылку на товар -->
+                        <a href="{{ url_for('order_product', product_id=product.id) }}">{{ product.name }}</a>
+                        <span class="text-align: end">{{ product.price }}руб</span>
                     </p>
-
                     {% endfor %}
                 </div>
+            </div>
+
+            <h2>Your Orders</h2>
+            <div class="product-list">
+                <ul>
+                    {% for order in orders %}
+                    <li>
+                        <p>Order ID: {{ order.id }}</p>
+                        <p>Status: {{ order.status }}</p>
+                        <p>Delivery address: {{ order.address }}</p>
+                        <ul>
+                            {% for item in order.items %}
+                            <li>{{ item.product_name }} - {{ item.quantity }} шт.</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </body>
@@ -53,159 +71,156 @@
     padding: 0px;
 }
 
-    .backround {
-        width: 1920px;
-        height: 1004px;
-        background: rgb(43, 83, 187);
-        align-items: center;
-        justify-content: center;
-        display: flex;
-        flex-direction: column;
-    }
+.backround {
+    width: 1920px;
+    height: 1004px;
+    background: rgb(43, 83, 187);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
 
-    button {
-        border: none
-    }
+button {
+    border: none;
+}
 
-    .creator-block {
-        position: absolute;
-        width: 1270px;
-        height: 66px;
-        bottom: 893px;
-        border-radius: 15px;
-        background: rgb(255, 255, 255);
-        align-items: center;
-        justify-content: center;
-        display: flex
-    }
+.creator-block {
+    position: absolute;
+    width: 1270px;
+    height: 66px;
+    bottom: 893px;
+    border-radius: 15px;
+    background: rgb(255, 255, 255);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
 
-    .creator-txt {
-        color: rgb(0, 0, 0);
-        font-family: Montserrat;
-        font-size: 36px;
-        font-weight: 700;
-        line-height: 44px;
-        letter-spacing: 0px;
-        text-align: center;
-    }
+.creator-txt {
+    color: rgb(0, 0, 0);
+    font-family: Montserrat;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 44px;
+    letter-spacing: 0px;
+    text-align: center;
+}
 
-    .profile-txt {
-        color: rgb(255, 255, 255);
-        font-family: Montserrat;
-        font-size: 36px;
-        font-weight: 700;
-        line-height: 44px;
-        letter-spacing: 0px;
-        text-align: start;
-        margin: 0px 0px 5px 0px
-    }
+.profile-txt {
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 44px;
+    letter-spacing: 0px;
+    text-align: start;
+    margin: 0px 0px 5px 0px;
+}
 
-    .logout {
-        font-size: 16px
-    }
+.logout {
+    font-size: 16px;
+}
 
-    .user-block {
-        width: 484px;
-        height: 301px;
-        border-radius: 15px;
-        background: rgb(255, 255, 255);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+.user-block {
+    width: 484px;
+    height: 301px;
+    border-radius: 15px;
+    background: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    .profile-txt-two {
-        color: rgb(43, 83, 187);
-        font-family: Montserrat;
-        font-size: 64px;
-        font-weight: 700;
-        line-height: 70px;
-        letter-spacing: 0px;
-        text-align: start;
-    }
+.profile-txt-two {
+    color: rgb(43, 83, 187);
+    font-family: Montserrat;
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 70px;
+    letter-spacing: 0px;
+    text-align: start;
+}
 
-    .global-float {
-        float: left
-    }
+.global-float {
+    float: left;
+}
 
-    .user-block-two {
-        width: 742px;
-        height: 301px;
-        border-radius: 15px;
-        background: rgb(255, 255, 255);
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-    }
+.user-block-two {
+    width: 742px;
+    height: 301px;
+    border-radius: 15px;
+    background: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
 
-    .orders {
-        color: rgb(43, 83, 187);
-        font-family: Montserrat;
-        font-size: 42px;
-        font-weight: 700;
-        line-height: 70px;
-        letter-spacing: 0px;
-        text-align: start;
-        margin-left: 25px
-    }
+.orders {
+    color: rgb(43, 83, 187);
+    font-family: Montserrat;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 70px;
+    letter-spacing: 0px;
+    text-align: start;
+    margin-left: 25px;
+}
 
-    .product-list {
-        border-radius: 15px;
-        background: rgb(255, 255, 255);
-        width: 1270px;
-        height: 380px;
+.product-list {
+    border-radius: 15px;
+    background: rgb(255, 255, 255);
+    width: 1270px;
+    height: 380px;
+}
 
-    }
+.profile-txt-three {
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 44px;
+    letter-spacing: 0px;
+    text-align: start;
+    margin: 57px 0px 5px 0px;
+    width: 1270px;
+}
 
-    .profile-txt-three {
-        color: rgb(255, 255, 255);
-        font-family: Montserrat;
-        font-size: 36px;
-        font-weight: 700;
-        line-height: 44px;
-        letter-spacing: 0px;
-        text-align: start;
-        margin: 57px 0px 5px 0px;
-        width: 1270px
-    }
+.orders-items {
+    color: rgb(43, 83, 187);
+    font-family: Montserrat;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 45px;
+    letter-spacing: 0px;
+    text-align: start;
+    margin-left: 10px;
+    margin: 0px 200px 0px 70px;
+    display: flex;
+    justify-content: space-between;
+}
 
-    .orders-items {
-        color: rgb(43, 83, 187);
-        font-family: Montserrat;
-        font-size: 32px;
-        font-weight: 700;
-        line-height: 45px;
-        letter-spacing: 0px;
-        text-align: start;
-        margin-left: 10px;
-        margin: 0px 200px 0px 70px;
-        display: flex;
-        justify-content: space-between;
-    }
+.nav-orders {}
 
-    .nav-orders {
+.add-product {
+    width: 80px;
+    height: 80px;
+    box-shadow: 0px 0px 25px 0px rgba(0, 0, 0, 0.36);
+    background: rgb(255, 255, 255);
+    color: rgb(43, 83, 187);
+    font-family: Inter;
+    font-size: 64px;
+    font-weight: 400;
+    line-height: 77px;
+    letter-spacing: 0px;
+    text-align: center;
+    border-radius: 15px 0px 15px 0px;
+    margin: 80px 0px 0px 662px;
+}
 
-    }
-
-    .add-product {
-        width: 80px;
-        height: 80px;
-        box-shadow: 0px 0px 25px 0px rgba(0, 0, 0, 0.36);
-        background: rgb(255, 255, 255);
-        color: rgb(43, 83, 187);
-        font-family: Inter;
-        font-size: 64px;
-        font-weight: 400;
-        line-height: 77px;
-        letter-spacing: 0px;
-        text-align: center;
-        border-radius: 15px 0px 15px 0px;
-        margin: 80px 0px 0px 662px;
-    }
-
-    .delete-product {
-        color: rgb(213, 72, 72);
-        background: none;
-        margin: 0px 0px 20px 70px
-    }
+.delete-product {
+    color: rgb(213, 72, 72);
+    background: none;
+    margin: 0px 0px 20px 70px;
+}
 </style>
