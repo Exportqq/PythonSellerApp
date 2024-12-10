@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import pandas as pd  # Для работы с Excel
+from io import BytesIO  # Для работы с байтовыми объектами
+from flask import send_file  # Для скачивания файла
 
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///orders.db'
@@ -8,6 +11,51 @@ app.config['SECRET_KEY'] = 'super-secret-key'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+@app.route('/admin/add_product', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    if current_user.role != 'admin':  # Только администратор может добавлять продукты
+        flash('Только администратор может добавлять продукты.')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        price = request.form.get('price')
+        quantity = request.form.get('quantity')
+        comment = request.form.get('comment')
+
+        if name and price and quantity:
+            price = float(price)
+            quantity = int(quantity)
+            product = Product(name=name, price=price, quantity=quantity, comment=comment)
+            db.session.add(product)
+            db.session.commit()
+            flash('Продукт успешно добавлен.')
+            return redirect(url_for('index'))
+        else:
+            flash('Пожалуйста, заполните все поля.')
+
+    return render_template('add_product.html')
+
+
+@app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    if current_user.role != 'admin':  # Только администратор может удалять продукты
+        flash('Только администратор может удалять продукты.')
+        return redirect(url_for('index'))
+
+    product = Product.query.get(product_id)
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        flash(f'Продукт "{product.name}" был удален.')
+    else:
+        flash('Продукт не найден.')
+
+    return redirect(url_for('index'))
 
 
 # Модели
@@ -65,13 +113,43 @@ def create_products():
 def index():
     if current_user.role == 'admin':
         orders = Order.query.all()  # Админ видит все заказы
-        return render_template('admin_orders.html', orders=orders)
+        products = Product.query.all()  # Админ видит все товары
+        return render_template('admin_orders.html', orders=orders, products=products)
     else:
         orders = Order.query.filter_by(user_id=current_user.id).all()  # Пользователь видит свои заказы
         products = Product.query.all()
         return render_template('index.html', orders=orders, products=products)
 
+@app.route('/export', methods=['GET', 'POST'])
+@login_required
+def export():
+    if request.method == 'POST':
+        selected_products = request.form.getlist('products')  # Получаем выбранные продукты
 
+        # Формируем данные для выгрузки
+        data = []
+        for product_id in selected_products:
+            product = Product.query.get(product_id)
+            sold_items = OrderItem.query.filter_by(product_id=product.id).all()
+            total_sold = sum(item.quantity for item in sold_items)
+            data.append({'Product Name': product.name, 'Total Sold': total_sold})
+
+        # Создаем DataFrame для выгрузки в Excel
+        df = pd.DataFrame(data)
+
+        # Генерация Excel файла в памяти
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Sales Report')
+
+        output.seek(0)
+
+        # Возвращаем файл для скачивания
+        return send_file(output, as_attachment=True, download_name='sales_report.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    # Отображаем страницу с выбором продуктов
+    products = Product.query.all()
+    return render_template('export.html', products=products)
 # Добавление маршрута для отображения страницы заказа товара
 @app.route('/order_product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
@@ -115,23 +193,22 @@ def order_product(product_id):
 
 
 # Маршрут для удаления продукта
-@app.route('/delete_product/<int:product_id>', methods=['POST'])
-@login_required
-def delete_product(product_id):
-    if current_user.role != 'admin':  # Только администратор может удалять продукты
-        flash('Только администратор может удалять продукты.')
-        return redirect(url_for('index'))
-
-    product = Product.query.get(product_id)
-    if product:
-        db.session.delete(product)
-        db.session.commit()
-        flash(f'Продукт "{product.name}" был удален.')
-    else:
-        flash('Продукт не найден.')
-
-    return redirect(url_for('index'))
-
+#@app.route('/delete_product/<int:product_id>', methods=['POST'])
+#@login_required
+#def delete_product(product_id):
+#    if current_user.role != 'admin':  # Только администратор может удалять продукты
+#        flash('Только администратор может удалять продукты.')
+#        return redirect(url_for('index'))
+#
+#    product = Product.query.get(product_id)
+#    if product:
+#        db.session.delete(product)
+#        db.session.commit()
+#        flash(f'Продукт "{product.name}" был удален.')
+#    else:
+#        flash('Продукт не найден.')
+#
+#    return redirect(url_for('index'))
 
 @app.route('/admin/confirm_order/<int:order_id>', methods=['POST'])
 @login_required
@@ -194,29 +271,29 @@ def signup():
     return render_template('signup.html')
 
 
-@app.route('/add_product', methods=['GET', 'POST'])
-@login_required
-def add_product():
-    if current_user.role != 'admin':  # Только администратор может добавлять продукты
-        return redirect(url_for('index'))
-
-    error = None
-    if request.method == 'POST':
-        name = request.form.get('name')
-        price = request.form.get('price')
-        quantity = request.form.get('quantity')
-        comment = request.form.get('comment')
-
-        if price and quantity:
-            price = float(price)
-            quantity = int(quantity)
-            product = Product(name=name, price=price, quantity=quantity, comment=comment)
-            db.session.add(product)
-            db.session.commit()
-            return redirect(url_for('index'))
-        else:
-            error = 'Пожалуйста, введите цену и количество товара'
-    return render_template('add_product.html', error=error)
+#@app.route('/add_product', methods=['GET', 'POST'])
+#@login_required
+#def add_product():
+#    if current_user.role != 'admin':  # Только администратор может добавлять продукты
+#        return redirect(url_for('index'))
+#
+#    error = None
+#    if request.method == 'POST':
+#        name = request.form.get('name')
+#        price = request.form.get('price')
+#        quantity = request.form.get('quantity')
+#        comment = request.form.get('comment')
+#
+#        if price and quantity:
+#            price = float(price)
+#            quantity = int(quantity)
+#            product = Product(name=name, price=price, quantity=quantity, comment=comment)
+#            db.session.add(product)
+#            db.session.commit()
+#            return redirect(url_for('index'))
+#        else:
+#            error = 'Пожалуйста, введите цену и количество товара'
+#    return render_template('add_product.html', error=error)
 
 if __name__ == "__main__":
     with app.app_context():

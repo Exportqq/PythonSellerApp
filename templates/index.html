@@ -1,226 +1,142 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Orders</title>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    </head>
-    <body>
-        <div class="backround">
-            <div class="nav">
-                <div class="creator-block">
-                    <p class="creator-txt">Coursework Saakyan Mikhail 316IS</p>
-                </div>
-                <div class="global-float">
-                    <p class="profile-txt">Profile</p>
-                    <div class="user-block">
-                        <p class="profile-txt-two">Welcome,<br> {{ current_user.username }}!<br> <a class="logout" href="{{ url_for('logout') }}">Logout</a></p>
-                    </div>
-                </div>
-                <div class="global-float">
-                    <div style="margin-left: 44px">
-                        <p class="profile-txt">Information and navigation</p>
-                        <div class="user-block-two">
-                            <p class="orders">Your orders:</p>
-                            <p class="orders">Earned:</p>
-                            <form action="{{ url_for('add_product') }}" method="post">
-                                {% if current_user.role == 'admin' %}
-                                    <button class="add-product" type="submit">+</button>
-                                {% endif %}
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <p class="profile-txt-three">List of available products</p>
-            <div class="product-list">
-                <div class="nav-orders">
-                    {% for product in products %}
-                    <p class="orders-items">
-                        <!-- Добавляем ссылку на товар -->
-                        <a href="{{ url_for('order_product', product_id=product.id) }}">{{ product.name }}</a>
-                        <span class="text-align: end">{{ product.price }}руб</span>
-                    </p>
-                    {% endfor %}
-                </div>
-            </div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
 
-            <h2>Your Orders</h2>
-            <div class="product-list">
-                <ul>
-                    {% for order in orders %}
-                    <li>
-                        <p>Order ID: {{ order.id }}</p>
-                        <p>Status: {{ order.status }}</p>
-                        <p>Delivery address: {{ order.address }}</p>
-                        <ul>
-                            {% for item in order.items %}
-                            <li>{{ item.product_name }} - {{ item.quantity }} шт.</li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                    {% endfor %}
-                </ul>
+        .nav {
+            background-color: #ffffff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .global-float {
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-txt, .profile-txt-two, .profile-txt-three {
+            margin: 0;
+            padding: 0;
+            color: #555;
+        }
+
+        .user-block {
+            margin-left: 10px;
+        }
+
+        .logout {
+            color: #d9534f;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0px 0px 0px 1600px;
+        }
+
+        .logout:hover {
+            text-decoration: underline;
+        }
+
+        .profile-txt-three {
+            margin: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .product-list {
+            padding: 0 20px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .nav-orders p {
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-orders a {
+            text-decoration: none;
+            color: #337ab7;
+            font-weight: bold;
+        }
+
+        .nav-orders a:hover {
+            text-decoration: underline;
+        }
+
+        h2 {
+            margin-left: 20px;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 8px 16px;
+            border-bottom: 1px solid #eee;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="nav">
+            <div class="global-float">
+                <p class="profile-txt">Profile</p>
+                <div class="user-block">
+                    <p class="profile-txt-two">Welcome, {{ current_user.username }}! <a class="logout" href="{{ url_for('logout') }}">Logout</a></p>
+                </div>
             </div>
         </div>
-    </body>
+        <p class="profile-txt-three">List of available products</p>
+        <div class="product-list">
+            <div class="nav-orders">
+                {% for product in products %}
+                <p class="orders-items">
+                    <a href="{{ url_for('order_product', product_id=product.id) }}">{{ product.name }}</a>
+                    <span style="float:right;">{{ product.price }} руб</span>
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <h2>Your Orders</h2>
+        <div class="product-list">
+            <ul id="orders-list">
+                {% for order in orders %}
+                <li>
+                    <p>Order ID: {{ order.id }}</p>
+                    <p>Status: {{ order.status }}</p>
+                    <p>Delivery address: {{ order.address }}</p>
+                    <ul>
+                        {% for item in order.items %}
+                        <li>{{ item.product_name }} - {{ item.quantity }} шт.</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
 </html>
-
-<style>
-* {
-    margin: 0px;
-    padding: 0px;
-}
-
-.backround {
-    width: 1920px;
-    height: 1004px;
-    background: rgb(43, 83, 187);
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-}
-
-button {
-    border: none;
-}
-
-.creator-block {
-    position: absolute;
-    width: 1270px;
-    height: 66px;
-    bottom: 893px;
-    border-radius: 15px;
-    background: rgb(255, 255, 255);
-    align-items: center;
-    justify-content: center;
-    display: flex;
-}
-
-.creator-txt {
-    color: rgb(0, 0, 0);
-    font-family: Montserrat;
-    font-size: 36px;
-    font-weight: 700;
-    line-height: 44px;
-    letter-spacing: 0px;
-    text-align: center;
-}
-
-.profile-txt {
-    color: rgb(255, 255, 255);
-    font-family: Montserrat;
-    font-size: 36px;
-    font-weight: 700;
-    line-height: 44px;
-    letter-spacing: 0px;
-    text-align: start;
-    margin: 0px 0px 5px 0px;
-}
-
-.logout {
-    font-size: 16px;
-}
-
-.user-block {
-    width: 484px;
-    height: 301px;
-    border-radius: 15px;
-    background: rgb(255, 255, 255);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.profile-txt-two {
-    color: rgb(43, 83, 187);
-    font-family: Montserrat;
-    font-size: 64px;
-    font-weight: 700;
-    line-height: 70px;
-    letter-spacing: 0px;
-    text-align: start;
-}
-
-.global-float {
-    float: left;
-}
-
-.user-block-two {
-    width: 742px;
-    height: 301px;
-    border-radius: 15px;
-    background: rgb(255, 255, 255);
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.orders {
-    color: rgb(43, 83, 187);
-    font-family: Montserrat;
-    font-size: 42px;
-    font-weight: 700;
-    line-height: 70px;
-    letter-spacing: 0px;
-    text-align: start;
-    margin-left: 25px;
-}
-
-.product-list {
-    border-radius: 15px;
-    background: rgb(255, 255, 255);
-    width: 1270px;
-    height: 380px;
-}
-
-.profile-txt-three {
-    color: rgb(255, 255, 255);
-    font-family: Montserrat;
-    font-size: 36px;
-    font-weight: 700;
-    line-height: 44px;
-    letter-spacing: 0px;
-    text-align: start;
-    margin: 57px 0px 5px 0px;
-    width: 1270px;
-}
-
-.orders-items {
-    color: rgb(43, 83, 187);
-    font-family: Montserrat;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 45px;
-    letter-spacing: 0px;
-    text-align: start;
-    margin-left: 10px;
-    margin: 0px 200px 0px 70px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.nav-orders {}
-
-.add-product {
-    width: 80px;
-    height: 80px;
-    box-shadow: 0px 0px 25px 0px rgba(0, 0, 0, 0.36);
-    background: rgb(255, 255, 255);
-    color: rgb(43, 83, 187);
-    font-family: Inter;
-    font-size: 64px;
-    font-weight: 400;
-    line-height: 77px;
-    letter-spacing: 0px;
-    text-align: center;
-    border-radius: 15px 0px 15px 0px;
-    margin: 80px 0px 0px 662px;
-}
-
-.delete-product {
-    color: rgb(213, 72, 72);
-    background: none;
-    margin: 0px 0px 20px 70px;
-}
-</style>

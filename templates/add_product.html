@@ -1,27 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Добавить продукт</title>
+    <title>Добавление товара</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            display: block;
+            margin-top: 10px;
+            color: #4CAF50;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Добавить новый продукт</h1>
-    {% if error %}
-        <p style="color: red">{{ error }}</p>
-    {% endif %}
+    <h1>Добавление нового товара</h1>
     <form method="POST">
-        <label>Название продукта:</label>
-        <input type="text" name="name" required>
-        <br>
-        <label>Цена:</label>
-        <input type="number" name="price" required>
-        <br>
-        <label>Количество:</label>
-        <input type="number" name="quantity" required>
-        <br>
-        <label>Комментарий:</label>
-        <textarea name="comment"></textarea>
-        <br>
-        <button type="submit">Добавить продукт</button>
+        <label for="name">Название:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="price">Цена:</label>
+        <input type="text" id="price" name="price" required>
+
+        <label for="quantity">Количество:</label>
+        <input type="text" id="quantity" name="quantity" required>
+
+        <button type="submit">Добавить товар</button>
     </form>
     <a href="{{ url_for('index') }}">Назад</a>
 </body>

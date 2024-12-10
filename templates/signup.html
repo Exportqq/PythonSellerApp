@@ -4,26 +4,103 @@
     <title>Signup</title>
 </head>
 <body>
-    <h1>Signup</h1>
-    <form method="POST">
-        <div>
-            <label>Username:</label>
-            <input type="text" name="username" required>
-        </div>
-        <div>
-            <label>Password:</label>
-            <input type="password" name="password" required>
-        </div>
-        <div>
-            <label>Role:</label>
-            <select name="role">
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-            </select>
-        </div>
-        <div>
-            <button type="submit">Signup</button>
-        </div>
-    </form>
+    <div class="backround">
+        <h1 class="txt">Регистрация</h1>
+        <form method="POST">
+            <div>
+                <input class="inp" type="text" placeholder="Имя пользователя" name="username" required>
+            </div>
+            <div>
+                <input class="inp" type="password" placeholder="Пароль" name="password" required>
+            </div>
+            <div>
+                <label class="txt-two">Выберите роль:</label>
+                <select class="inp-two" name="role">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div>
+                <button class="log-btn" type="submit">Signup</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
+
+<style>
+
+input {outline:none;}
+
+.backround {
+    background: rgb(196, 196, 196);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 1080px;
+    padding: 300px 0px 0px 0px
+}
+
+.txt {
+    color: rgb(255, 255, 255);
+    font-family: 'Montserrat';
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 17px;
+    letter-spacing: 0px;
+    text-align: center;
+    box-sizing: border-box;
+    border: none;
+}
+
+.txt-two {
+    color: rgb(255, 255, 255);
+    font-family: 'Montserrat';
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 17px;
+    letter-spacing: 0px;
+    text-align: center;
+    box-sizing: border-box;
+    border: none;
+}
+
+.log-btn {
+    width: 250px;
+    height: 30px;
+    color: rgb(0, 0, 0);
+    font-family: 'Montserrat';
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 17px;
+    letter-spacing: 0px;
+    text-align: center;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 5px;
+    background: rgb(43, 83, 187);
+    color: white;
+    margin: 20px 0px 0px 0px
+}
+
+
+.inp {
+    margin: 0px 0px 10px 0px;
+    box-sizing: border-box;
+    border: 1px solid rgb(43, 83, 187);
+    border-radius: 5px;
+    width: 250px;
+    height: 30px;
+    background: rgb(255, 255, 255);
+}
+
+.inp-two {
+    margin: 0px 0px 10px 0px;
+    box-sizing: border-box;
+    border: 1px solid rgb(43, 83, 187);
+    border-radius: 5px;
+    width: 100px;
+    height: 30px;
+    background: rgb(255, 255, 255);
+}
+</style>

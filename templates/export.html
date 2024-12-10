@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Sales Data</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #2b53bb;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 36px;
+        }
+
+        form {
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .product-list {
+            margin: 20px auto;
+            text-align: left;
+            width: 60%;
+        }
+
+        .product-list label {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .submit-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Select Products for Export</h1>
+
+    <form action="{{ url_for('export') }}" method="POST">
+        <div class="product-list">
+            {% for product in products %}
+                <label>
+                    <input type="checkbox" name="products" value="{{ product.id }}">
+                    {{ product.name }}
+                </label>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="submit-btn">Export to Excel</button>
+    </form>
+
+</body>
+</html>
